@@ -1,0 +1,12 @@
+{
+  "name": "dynamicPdf",
+  "description": "Tool for transform docx template to pdf",
+  "author": "vbomba",
+  "version": "0.0.1",
+  "dependencies": {
+    "adm-zip": "^0.5.4",
+    "libreoffice-convert": "^0.4.2",
+    "path": "^0.12.7",
+    "fs": "^0.0.1-security"
+  }
+}
