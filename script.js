@@ -1,10 +1,10 @@
 const AdmZip = require("adm-zip");
-const libre = require("libreoffice-convert");
-
 const path = require("path");
 const fs = require("fs");
+const { promisify } = require("util");
+const exec = promisify(require("child_process").exec);
 
-function replaceTextAndSaveToPdf(
+async function replaceTextAndSaveToPdf(
   entryObj,
   entryFileName,
   outputDocxName,
@@ -38,21 +38,19 @@ function replaceTextAndSaveToPdf(
   // Save the modified zip archive to a new file
   zip.writeZip(outputDocxName);
 
-  const extend = ".pdf";
-  const FilePath = path.join(__dirname, outputDocxName);
   const outputPath = path.join(__dirname, outputPdfName);
 
-  // Read file
-  const enterPath = fs.readFileSync(FilePath);
-  // Convert it to pdf format with undefined filter (see Libreoffice doc about filter)
-  libre.convert(enterPath, extend, undefined, (err, done) => {
-    if (err) {
-      console.log(`Error converting file: ${err}`);
-    }
+  // Use LibreOffice to convert the docx file to pdf
+  const { stderr } = await exec(
+    `soffice --convert-to pdf --outdir "${__dirname}" "${outputDocxName}"`
+  );
+  if (stderr) {
+    console.error(`Error converting file: ${stderr}`);
+    return;
+  }
 
-    // Here in done you have pdf file which you can save or transfer in another stream
-    fs.writeFileSync(outputPath, done);
-  });
+  // Rename the output pdf file
+  fs.renameSync(path.join(__dirname, `${outputDocxName}.pdf`), outputPath);
 }
 
 replaceTextAndSaveToPdf(
